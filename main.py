@@ -45,7 +45,10 @@ class YandexDisk:
         response = requests.get(
             url,
             headers=self.headers,
-            params={'path': f'{self.folder_name}/{file_name}'}
+            params={
+                'path': f'{self.folder_name}/{file_name}',
+                'overwrite': 'true'
+            }
         )
 
         return response.json()['href']
@@ -80,13 +83,19 @@ class JsonData:
         self.data = {}
 
     def add_file(self, file_name, file_size):
-        self.data[file_name] = file_size
+        self.data[file_name] = self.format_size(file_size)
 
     def load(self, json_data):
         self.data = json.loads(json_data)
 
     def to_json(self):
-        return json.dumps(self.data)
+        return json.dumps(self.data, ensure_ascii=False)
+
+    def format_size(self, size):
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024:
+                return f'{size:.2f} {unit}'
+            size /= 1024
 
 
 def main():
